@@ -40,53 +40,52 @@ public class DemoTest {
         zipped.subscribe(System.out::println);
 
     }
-    
+
     @Test
     public void ejemploEjecucionParalela() {
         System.out.println("Ejemplo Merge");
-        Flux<String> flux1 = Flux.range(1, 2)                
+        Flux<String> flux1 = Flux.range(1, 2)
                 .map(numero -> "F1." + numero);
-        Flux<String> flux2 = Flux.range(1, 3)                
-                .map(numero -> "F2." + numero);        
-        
+        Flux<String> flux2 = Flux.range(1, 3)
+                .map(numero -> "F2." + numero);
+
         System.out.println("MERGED");
-        Flux.merge(flux1,flux2)
+        Flux.merge(flux1, flux2)
                 .map(string -> loguearCurrentThread(string))
                 .subscribe(System.out::println);
-        
+
         System.out.println("MERGED y PARALELIZADO");
-        Flux.merge(flux1,flux2)
+        Flux.merge(flux1, flux2)
                 .parallel()
                 .runOn(Schedulers.parallel())
                 .map(string -> loguearCurrentThread(string))
-                .subscribe(System.out::println);  
+                .subscribe(System.out::println);
     }
-    
+
     @Test
     public void ejemploEjecucionParalelaYLuegoSecuencial() {
         System.out.println("Ejemplo Ejecución paralela");
-        Flux<String> flux1 = Flux.range(1, 2)                
+        Flux<String> flux1 = Flux.range(1, 2)
                 .map(numero -> "F1." + numero);
-        Flux<String> flux2 = Flux.range(1, 3)                
-                .map(numero -> "F2." + numero);        
-        Flux<String> flux3 = Flux.range(1, 100)                
-                .map(numero -> "SECUENCIAL." + numero);         
-        
+        Flux<String> flux2 = Flux.range(1, 3)
+                .map(numero -> "F2." + numero);
+        Flux<String> flux3 = Flux.range(1, 100)
+                .map(numero -> "SECUENCIAL." + numero);
+
         System.out.println("PROCESAMIENTO PARALELO Y LUEGO SECUENCIAL");
-        Flux.merge(flux1,flux2)
+        Flux.merge(flux1, flux2)
                 .parallel()
                 .runOn(Schedulers.parallel())
-                .map(string -> loguearCurrentThread(string))                
+                .map(string -> loguearCurrentThread(string))
                 .sequential()
                 .zipWith(flux3)
                 .map(tupla -> loguearCurrentThread(tupla.getT1() + " - " + tupla.getT2()))
-                .subscribe(System.out::println);  
-        
-        
+                .subscribe(System.out::println);
+
     }
 
     private static String loguearCurrentThread(String string) {
-        return Thread.currentThread().getName() + " -> " + string;
+        return "Thread[" + Thread.currentThread().getName() + "] -> " + string;
     }
 
 }
